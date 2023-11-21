@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://unpkg.com/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        span{
+            color: red;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+<form action="register" method="post">
+    name:<input name="name"><br>
+    pwd:<input name="pwd"><br>
+    gender:<input name="gender" value="1">男
+            <input name="gender" value="0">女<br>
+    age:<input type="number" name="age"><br>
+    like:<input type="checkbox" name="likes" value="读书">读书
+        <input type="checkbox" name="likes" value="手游">手游
+        <input type="checkbox" name="likes" value="电影">电影
+</form>
+
+<hr>
+<form action="a/b/c/sign" method="post" id="app">
+    name:<input name="name" v-model="user.name">
+    <span>{{errors.name?errors.name.join('; ') : ''}}</span><br>
+    pwd:<input name="pwd" v-model="user.pwd">
+    <span>{{errors.pwd?errors.pwd.join('; ') : ''}}</span><br>
+    email:<input name="email"><br>
+    age:<input type="number" name="age"><br>
+    like:<input type="checkbox" name="likes" v-model="user.likes" value="读书">读书
+    <input type="checkbox" name="likes" v-model="user.likes" value="手游">手游
+    <input type="checkbox" name="likes" v-model="user.likes" value="电影">电影
+    <span>{{errors.likes?errors.likes.join('; ') : ''}}</span><br>
+    <button @click.prevent="sign">提交</button>
+</form>
+
+<script>
+    var v = new Vue({
+        el:"#app",
+        data:{
+            user:{name:"",likes:[],pwd:""},
+            errors:{name:[],likes:[]}
+        },
+        methods:{
+            sign(){
+                //SpringMVC => post方法
+                var p = new URLSearchParams();
+                p.append("name",this.user.name);
+                p.append("pwd",this.user.pwd);
+                this.user.likes.forEach(like=>{
+                    p.append("likes",like);
+                });
+                axios.post("a/b/c/sign",p).then(res=>{
+                    this.errors = {};//清空之前的报错信息
+                    res.data.forEach(e =>{
+                        if ( !this.errors[e.field] ){
+                            this.errors[e.field] = [];
+                        }
+                        this.errors[e.field].push(e.defaultMessage);
+                    })
+                })
+            }
+        }
+    })
+</script>
+
+<hr>
+<form action="a/b/c/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="f1"><br>
+    <input type="file" name="f2"><br>
+    <input type="file" name="fs"><br>
+<!--    //文件多选模式-->
+    <input type="file" name="fs" multiple><br>
+    <button>上传</button>
+</form>
+
+<hr>
+
+<ul id="app1">
+    <li><a href="a.html">a.html</a></li>
+    <li><a href="b.html">b.html</a></li>
+    <li><a href="c.html">c.html</a></li>
+    <li><button @click="a">test</button></li>
+</ul>
+
+<script>
+    new Vue({
+        el:"#app1",
+        methods: {
+            a(){
+                axios.post("a/b/c/sign").then(res=>{
+                    alert(res.data.msg);
+                })
+            }
+
+        }
+    })
+</script>
+</body>
+</html>
